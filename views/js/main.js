@@ -329,31 +329,34 @@ var selectRandomCrust = function() {
 };
 
 var ingredientItemizer = function(string) {
-  return "<li>" + string + "</li>";
+  var li = document.createElement('li');
+  var text = document.createTextNode(string);
+  li.appendChild(text);
+  return li;
 };
 
-// Returns a string with random pizza ingredients nested inside <li> tags
+// Returns a documentFragment with random pizza ingredients nested inside <li> tags
 var makeRandomPizza = function() {
-  var pizza = "";
+  var pizza = document.createDocumentFragment();
 
   var numberOfMeats = Math.floor((Math.random() * 4));
   var numberOfNonMeats = Math.floor((Math.random() * 3));
   var numberOfCheeses = Math.floor((Math.random() * 2));
 
   for (var i = 0; i < numberOfMeats; i++) {
-    pizza = pizza + ingredientItemizer(selectRandomMeat());
+    pizza.appendChild(ingredientItemizer(selectRandomMeat()));
   }
 
   for (var j = 0; j < numberOfNonMeats; j++) {
-    pizza = pizza + ingredientItemizer(selectRandomNonMeat());
+    pizza.appendChild(ingredientItemizer(selectRandomNonMeat()));
   }
 
   for (var k = 0; k < numberOfCheeses; k++) {
-    pizza = pizza + ingredientItemizer(selectRandomCheese());
+    pizza.appendChild(ingredientItemizer(selectRandomCheese()));
   }
 
-  pizza = pizza + ingredientItemizer(selectRandomSauce());
-  pizza = pizza + ingredientItemizer(selectRandomCrust());
+  pizza.appendChild(ingredientItemizer(selectRandomSauce()));
+  pizza.appendChild(ingredientItemizer(selectRandomCrust()));
 
   return pizza;
 };
@@ -387,11 +390,11 @@ var pizzaElementGenerator = function(i) {
   pizzaDescriptionContainer.classList.add("col-md-6");
 
   pizzaName = document.createElement("h4");
-  pizzaName.innerHTML = randomName();
+  pizzaName.appendChild(document.createTextNode(randomName()));
   pizzaDescriptionContainer.appendChild(pizzaName);
 
   ul = document.createElement("ul");
-  ul.innerHTML = makeRandomPizza();
+  ul.appendChild(makeRandomPizza());
   pizzaDescriptionContainer.appendChild(ul);
   pizzaContainer.appendChild(pizzaDescriptionContainer);
 
@@ -421,39 +424,25 @@ var resizePizzas = function(size) {
 
   changeSliderLabel(size);
 
-   // Returns the size difference to change a pizza element from one size to another. Called by changePizzaSlices(size).
-  function determineDx (elem, size) {
-    var oldWidth = elem.offsetWidth;
-    var windowWidth = document.querySelector("#randomPizzas").offsetWidth;
-    var oldSize = oldWidth / windowWidth;
-
-    // TODO: change to 3 sizes? no more xl?
-    // Changes the slider value to a percent width
-    function sizeSwitcher (size) {
-      switch(size) {
-        case "1":
-          return 0.25;
-        case "2":
-          return 0.3333;
-        case "3":
-          return 0.5;
-        default:
-          console.log("bug in sizeSwitcher");
-      }
+  function sizeSwitcher (size) {
+    switch(size) {
+      case "1":
+        return 0.25;
+      case "2":
+        return 0.3333;
+      case "3":
+        return 0.5;
+      default:
+        console.log("bug in sizeSwitcher");
     }
-
-    var newSize = sizeSwitcher(size);
-    var dx = (newSize - oldSize) * windowWidth;
-
-    return dx;
   }
 
   // Iterates through pizza elements on the page and changes their widths
   function changePizzaSizes(size) {
-    for (var i = 0; i < document.querySelectorAll(".randomPizzaContainer").length; i++) {
-      var dx = determineDx(document.querySelectorAll(".randomPizzaContainer")[i], size);
-      var newwidth = (document.querySelectorAll(".randomPizzaContainer")[i].offsetWidth + dx) + 'px';
-      document.querySelectorAll(".randomPizzaContainer")[i].style.width = newwidth;
+    var pizzas = document.querySelectorAll(".randomPizzaContainer");
+    for (var i = 0; i < pizzas.length; i++) {
+      var newwidth = sizeSwitcher(size) * 100 + '%';
+      pizzas[i].style.width = newwidth;
     }
   }
 
@@ -469,10 +458,12 @@ var resizePizzas = function(size) {
 window.performance.mark("mark_start_generating"); // collect timing data
 
 // This for-loop actually creates and appends all of the pizzas when the page loads
+var pizzasDiv = document.getElementById("randomPizzas");
+var pizzasContainer = document.createDocumentFragment();
 for (var i = 2; i < 100; i++) {
-  var pizzasDiv = document.getElementById("randomPizzas");
-  pizzasDiv.appendChild(pizzaElementGenerator(i));
+  pizzasContainer.appendChild(pizzaElementGenerator(i));
 }
+pizzasDiv.appendChild(pizzasContainer);
 
 // User Timing API again. These measurements tell you how long it took to generate the initial pizzas
 window.performance.mark("mark_end_generating");
@@ -503,9 +494,11 @@ function updatePositions() {
   window.performance.mark("mark_start_frame");
 
   var items = document.querySelectorAll('.mover');
+  var scrollTop = document.body.scrollTop / 1250;
   for (var i = 0; i < items.length; i++) {
-    var phase = Math.sin((document.body.scrollTop / 1250) + (i % 5));
-    items[i].style.left = items[i].basicLeft + 100 * phase + 'px';
+    var phase = Math.sin(scrollTop + (i % 5));
+    var left = items[i].basicLeft + 100 * phase + 'px';
+    items[i].style.transform = 'translateX(' + left + ') translateZ(0)';
   }
 
   // User Timing API to the rescue again. Seriously, it's worth learning.
@@ -519,20 +512,19 @@ function updatePositions() {
 }
 
 // runs updatePositions on scroll
-window.addEventListener('scroll', updatePositions);
+window.addEventListener('scroll', requestAnimationFrame.bind(this, updatePositions));
 
 // Generates the sliding pizzas when the page loads.
 document.addEventListener('DOMContentLoaded', function() {
   var cols = 8;
   var s = 256;
-  for (var i = 0; i < 200; i++) {
+  for (var i = 0; i < 40; i++) {
     var elem = document.createElement('img');
     elem.className = 'mover';
-    elem.src = "images/pizza.png";
-    elem.style.height = "100px";
-    elem.style.width = "73.333px";
+    elem.src = "images/floating_pizza.png";
     elem.basicLeft = (i % cols) * s;
     elem.style.top = (Math.floor(i / cols) * s) + 'px';
+    elem.style.left = 0;
     document.querySelector("#movingPizzas1").appendChild(elem);
   }
   updatePositions();

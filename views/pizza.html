@@ -1,8 +1,10 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/bootstrap-grid.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+  *{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-box-sizing:border-box}body{font-family:"Trebuchet MS",Helvetica,sans-serif;background:#000}input{background:grey;font-size:18px}form{display:inline-block}.centered{text-align:center}#pizzaSize{font-weight:800}.mover{position:fixed;z-index:-1}.randomPizzaContainer{float:left;display:flex}.randomPizzaContainer:after{content:"";display:table;clear:both}.container{background-color:rgba(240,60,60,.8)}
+  </style>
 </head>
 
 <body>
@@ -101,43 +103,36 @@
             <input id="sizeSlider" type="range" min="1" max="3" value="2" step="1" onchange="resizePizzas(this.value)"></input>
           </div>
         </div>
-        <div id="randomPizzas" class="row">
-          <div id="pizza0" class="randomPizzaContainer" style="width:33.33%;">
-            <div class="col-md-6">
-              <img src="images/pizza.png" class="img-responsive">
-            </div>
-            <div class="col-md-6">
-              <h4>The Udacity Special</h4>
-              <ul>
-                <li>Turkey</li>
-                <li>Tofu</li>
-                <li>Cauliflower</li>
-                <li>Sun Dried Tomatoes</li>
-                <li>Velveeta Cheese</li>
-                <li>Red Sauce</li>
-                <li>Whole Wheat Crust</li>
-              </ul>
-            </div>
-          </div>
-          <div id="pizza1" class="randomPizzaContainer" style="width:33.33%;">
-            <div class="col-md-6">
-              <img src="images/pizza.png" class="img-responsive">
-            </div>
-            <div class="col-md-6">
-              <h4>The Cameron Special</h4>
-              <ul>
-                <li>Chicken</li>
-                <li>Hot Sauce</li>
-                <li>White Crust</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+        <div id="randomPizzas" class="row"></div>
       </div>
     </div>
     <div id="footer" class="col-md-12">Thanks for visiting! &copy; 2014 Udacity</div>
   </div>
-  <script type="text/javascript" src="js/main.js"></script>
+
+  <noscript>
+    <link href="css/bootstrap-grid.min.css" rel="stylesheet">
+  </noscript>
+
+  <script>
+    function loadCSS(href){
+      var ss = window.document.createElement('link'),
+          ref = window.document.getElementsByTagName('head')[0];
+
+      ss.rel = 'stylesheet';
+      ss.href = href;
+      ss.media = 'noway';
+
+      ref.parentNode.insertBefore(ss, ref);
+
+      setTimeout(function () {
+        ss.media = 'all';
+      });
+    }
+
+    loadCSS('css/bootstrap-grid.min.css');
+  </script>
+
+  <script type="text/javascript" src="js/main.min.js"></script>
 </body>
 
 </html>
